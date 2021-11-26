@@ -4,8 +4,15 @@
 #include <errno.h>
 int copyData(char *string)
 {
-	char buf[32];
+    int a;
+    int b;
+    char c[10];
+	char buf[64];
+	int d;
+	char e[100];
 	strcpy(buf, string);
+	int f;
+	char g[200];
 	return (0);
 }
 
