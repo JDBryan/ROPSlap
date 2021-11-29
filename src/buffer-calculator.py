@@ -1,7 +1,7 @@
 from struct import pack
 import subprocess
 import sys
-
+import os
 
 def get_max_buffer_length():
     buffer_length = 1
@@ -12,11 +12,12 @@ def get_max_buffer_length():
     return buffer_length
 
 
-def binary_search_buffer_length(program_name, max_buffer_length):
+def calculate_buffer_length(program_name, max_buffer_length):
     min_buffer_length = 0
     while True:
         buffer_length_guess = int(((max_buffer_length - min_buffer_length) / 2) + min_buffer_length)
         if buffer_length_found(program_name, buffer_length_guess):
+            os.remove("buffer")
             return buffer_length_guess + 4
         elif program_runs_with_buffer(program_name, buffer_length_guess):
             min_buffer_length = buffer_length_guess
@@ -41,6 +42,7 @@ def program_runs_with_buffer(program_name, buffer_length):
         return False
 
 
+
 def write_new_buffer(buffer_length):
     outfile = open('buffer', "wb")
     p = bytes("A" * buffer_length, 'ascii')
@@ -48,4 +50,4 @@ def write_new_buffer(buffer_length):
     outfile.close()
 
 
-print(binary_search_buffer_length(sys.argv[1], get_max_buffer_length()))
+print(calculate_buffer_length(sys.argv[1], get_max_buffer_length()))
