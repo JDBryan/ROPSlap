@@ -16,9 +16,16 @@ int copyData(char *string)
 	return (0);
 }
 
+int biggerStack(char *string)
+{
+    char bigBuff[800];
+    copyData(string);
+    return (0);
+}
+
 int main(int argc, char *argv[])
 {
-	char buffer[700];
+	char buffer[740];
 	FILE *file;
     if (argc !=2)
     {
