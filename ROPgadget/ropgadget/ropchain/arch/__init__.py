@@ -8,3 +8,4 @@
 
 import ropgadget.ropchain.arch.ropmakerx64
 import ropgadget.ropchain.arch.ropmakerx86
+import ropgadget.ropchain.arch.buffer_calculator

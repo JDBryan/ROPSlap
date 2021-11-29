@@ -11,6 +11,7 @@ import re
 import sys
 from struct import pack
 
+
 class ROPMakerX86(object):
     def __init__(self, binary, gadgets, liboffset=0x0):
         self.__binary  = binary
