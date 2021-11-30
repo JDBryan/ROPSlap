@@ -16,9 +16,16 @@ int copyData(char *string)
 	return (0);
 }
 
+int biggerStack(char *string)
+{
+    char bigBuff[800];
+    copyData(string);
+    return (0);
+}
+
 int main(int argc, char *argv[])
 {
-	char buffer[700];
+	char buffer[1000];
 	FILE *file;
     if (argc !=2)
     {
@@ -35,7 +42,7 @@ int main(int argc, char *argv[])
 		return (0);
 	}
 	printf("file opened\n");
-	fread(buffer, 699,1,file);
+	fread(buffer, 999,1,file);
 	fclose(file);
 	copyData(buffer);
 	return (0);
