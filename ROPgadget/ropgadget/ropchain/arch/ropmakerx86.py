@@ -10,6 +10,8 @@
 import re
 import sys
 from struct import pack
+from .buffer_calculator import calculate_buffer_length
+from ropgadget.args import Args
 
 
 class ROPMakerX86(object):
@@ -405,5 +407,6 @@ class ROPMakerX86(object):
 
         print("\n- Step 5 -- Build the ROP chain\n")
 
+        args = Args().getArgs()
         self.__buildRopChain(write4where[0], popDst, popSrc, xorSrc, xorEax, incEax, popEbx, popEcx, popEdx, syscall)
-        self.__buildExecveRopChain(write4where[0], popDst, popSrc, xorSrc, xorEax, incEax, popEbx, popEcx, popEdx, syscall, 86)
+        self.__buildExecveRopChain(write4where[0], popDst, popSrc, xorSrc, xorEax, incEax, popEbx, popEcx, popEdx, syscall, calculate_buffer_length(args.binary))

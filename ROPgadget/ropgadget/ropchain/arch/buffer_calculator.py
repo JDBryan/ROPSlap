@@ -48,10 +48,11 @@ def write_new_buffer(buffer_length):
     outfile.close()
 
 
-def calculate_buffer_length(program_name=sys.argv[1]):
+def calculate_buffer_length(program_name):
     buffer_length = binary_search_buffer_length(program_name, get_max_buffer_length(program_name))
     os.remove("buffer")
     return buffer_length
 
 
-# print(calculate_buffer_length())
+if __name__ == "__main__":
+    print(calculate_buffer_length("vuln3-32"))
