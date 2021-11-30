@@ -71,6 +71,8 @@ architectures supported:
         parser.add_argument("-v", "--version",      action="store_true",              help="Display the ROPgadget's version")
         parser.add_argument("-c", "--checkUpdate",  action="store_true",              help="Checks if a new version is available")
         parser.add_argument("--binary",             type=str, metavar="<binary>",     help="Specify a binary filename to analyze")
+        parser.add_argument("--execute",            type=str, metavar="<execute>",    default="/bin/sh", help="Specify program to be run by ROPChain")
+        parser.add_argument("--env",                type=str, metavar="<env>",        default="", help="Specify env vars")
         parser.add_argument("--opcode",             type=str, metavar="<opcodes>",    help="Search opcode in executable segment")
         parser.add_argument("--string",             type=str, metavar="<string>",     help="Search string in readable segment")
         parser.add_argument("--memstr",             type=str, metavar="<string>",     help="Search each byte in all readable segment")

