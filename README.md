@@ -3,16 +3,6 @@ Automatic Return Oriented Programming exploit generator
 
 Takes a vulnerable program, calculates buffer overflow offset and produces an input file containing ROPChain to call execve
 
-## Setup
-
-In order to get started with this tool we will first need to install some dependencies required for ROPGadget. 
-
-```bash
-sudo apt update
-sudo apt install -y python3-pip gdb gcc-multilib
-pip3 install capstone
-```
-
 ## Vagrant VM
 
 Although ROPSlap has been tested to work outside of a virtual machine, we cannot guarantee it will work on every platform and setup. For this reason we have included a vagrantfile that can be used to setup a virtual machine to run ROPSlap on. With vagrant installed, run the following commands inside of the root of the repository
@@ -23,6 +13,16 @@ vagrant ssh
 cd /vagrant
 ```
 The /vagrant directory will hold all files included in the repository.
+
+## Setup
+
+In order to get started with this tool we will first need to install some dependencies required for ROPGadget. 
+
+```bash
+sudo apt update
+sudo apt install -y python3-pip gdb gcc-multilib
+pip3 install capstone
+```
 
 ## Usage
 
