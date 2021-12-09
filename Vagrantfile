@@ -4,9 +4,9 @@
 Vagrant.configure("2") do |config|
   config.vm.define "box" do |box|
                 box.vm.box = "ubuntu/bionic64"
-                box.vm.hostname = "cw-box"
+                box.vm.hostname = "cw-box1"
                 box.vm.provider "virtualbox" do |virtualbox|
-        virtualbox.name="cw-box"
+        virtualbox.name="cw-box1"
     end
  end
 end

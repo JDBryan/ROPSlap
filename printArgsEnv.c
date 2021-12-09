@@ -6,6 +6,7 @@ int main(int argc, char *argv[], char **envp)
 {
 	int i;
     printf("%d\n",argc);
+    printf("envp: %p\n", envp);
     for(i=1;i<argc;i++)
     {
         printf("%s ",argv[i]);
